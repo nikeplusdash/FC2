@@ -9,9 +9,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import java.util.ArrayList;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
-    private ArrayList<Fragment> splashscreens;
+    private final ArrayList<Fragment> splashscreens;
 
-    public ViewPagerAdapter(ArrayList<Fragment> screens,@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+    public ViewPagerAdapter(ArrayList<Fragment> screens, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
         super(fragmentManager, lifecycle);
         this.splashscreens = screens;
     }

@@ -1,13 +1,12 @@
 package com.foodmgmt.dontstarve.onboarding;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.foodmgmt.dontstarve.R;
 import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen1;
@@ -29,9 +28,9 @@ public class ViewPagerFragment extends Fragment {
         aF.add(new IntroScreen3());
         aF.add(new Register());
         aF.add(new Verify());
-        ViewPagerAdapter vpa = new ViewPagerAdapter(aF,requireActivity().getSupportFragmentManager(),getLifecycle());
+        ViewPagerAdapter vpa = new ViewPagerAdapter(aF, requireActivity().getSupportFragmentManager(), getLifecycle());
         ViewPager2 vp2 = view.findViewById(R.id.pager);
-        vp2.setOffscreenPageLimit(1);
+        vp2.setOffscreenPageLimit(3);
         vp2.setAdapter(vpa);
         return view;
     }
