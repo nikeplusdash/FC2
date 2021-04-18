@@ -28,6 +28,7 @@
         android:fontFamily="@font/acuminpro_bold"
         android:text="@string/slide1_text"
         android:textAlignment="center"
+        android:gravity="center"
         android:textColor="@color/black"
         android:textSize="42sp"
         app:layout_constraintBottom_toTopOf="@id/subtxt"
