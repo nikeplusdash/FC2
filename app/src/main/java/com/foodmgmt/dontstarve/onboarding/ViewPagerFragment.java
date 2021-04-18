@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.foodmgmt.dontstarve.R;
@@ -17,6 +18,8 @@ import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen2;
 import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen3;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
+import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator;
 
 import java.util.ArrayList;
 
@@ -26,7 +29,6 @@ public class ViewPagerFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_pager, container, false);
         ArrayList<Fragment> aF = new ArrayList<>();
-        TabLayout tl = view.findViewById(R.id.indi);
         aF.add(new IntroScreen1());
         aF.add(new IntroScreen2());
         aF.add(new IntroScreen3());
@@ -34,9 +36,10 @@ public class ViewPagerFragment extends Fragment {
         ViewPager2 vp2 = view.findViewById(R.id.pager);
         vp2.setOffscreenPageLimit(2);
         vp2.setAdapter(vpa);
-        new TabLayoutMediator(tl, vp2, (tab, position) -> {
-            tab.setIcon(R.drawable.indicator);
-        }).attach();
+
+        DotsIndicator dotsIndicator = (DotsIndicator) view.findViewById(R.id.worm_dots_indicator);
+        dotsIndicator.setViewPager2(vp2);
+
         vp2.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override
             public void transformPage(@NonNull View view, float position) {
@@ -62,11 +65,6 @@ public class ViewPagerFragment extends Fragment {
                 if(Math.abs(position) < 0.5) stv.setAlpha(1-Math.abs(position)/0.5f);
                 else if(position < -1) stv.setAlpha(0);
                 else stv.setAlpha(0);
-
-                if(position > -1 && position < 1) {
-                    int idx = vp2.getCurrentItem();
-                    tl.getTabAt(idx).setIcon(R.drawable.indicator);
-                }
             }
         });
         return view;
