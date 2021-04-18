@@ -1,10 +1,13 @@
 package com.foodmgmt.dontstarve.onboarding;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -14,6 +17,7 @@ import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen2;
 import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen3;
 import com.foodmgmt.dontstarve.onboarding.screens.Register;
 import com.foodmgmt.dontstarve.onboarding.screens.Verify;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -26,8 +30,6 @@ public class ViewPagerFragment extends Fragment {
         aF.add(new IntroScreen1());
         aF.add(new IntroScreen2());
         aF.add(new IntroScreen3());
-        aF.add(new Register());
-        aF.add(new Verify());
         ViewPagerAdapter vpa = new ViewPagerAdapter(aF, requireActivity().getSupportFragmentManager(), getLifecycle());
         ViewPager2 vp2 = view.findViewById(R.id.pager);
         vp2.setOffscreenPageLimit(3);

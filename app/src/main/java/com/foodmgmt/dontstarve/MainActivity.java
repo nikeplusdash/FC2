@@ -2,6 +2,8 @@ package com.foodmgmt.dontstarve;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 
 import android.app.Activity;
@@ -12,6 +14,8 @@ import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.foodmgmt.dontstarve.onboarding.screens.IntroScreen1;
 
 public class MainActivity extends AppCompatActivity {
     @Override
