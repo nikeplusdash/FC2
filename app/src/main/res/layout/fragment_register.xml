@@ -10,12 +10,12 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp"
         android:fontFamily="@font/acuminpro_bold"
         android:text="@string/slide_register_text"
         android:textColor="@color/black"
-        android:textSize="42sp"
-        android:layout_marginTop="150dp"
-        android:layout_gravity="center_horizontal"/>
+        android:textSize="42sp" />
 
     <TextView
         android:id="@+id/textView3"
@@ -23,72 +23,71 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="200dp"
-        android:textColor="@color/black"
-        android:text="@string/register_sub_text" />
+        android:text="@string/register_sub_text"
+        android:textColor="@color/black" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/usernameWrapper"
+        style="@style/LoginTextInputLayoutStyle"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"
         android:layout_gravity="center_horizontal"
-        android:textColorHint="@color/black"
-        style="@style/LoginTextInputLayoutStyle">
+        android:layout_marginTop="300dp"
+        android:textColorHint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="Name" />
+            android:fontFamily="@font/acuminpro_regular"
+            android:hint="Name"
+            android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailWrapper"
+        style="@style/LoginTextInputLayoutStyle"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="380dp"
         android:layout_gravity="center_horizontal"
-        style="@style/LoginTextInputLayoutStyle"
-        android:textColorHint="@color/black"
-        >
+        android:layout_marginTop="380dp"
+        android:textColorHint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:fontFamily="@font/acuminpro_regular"
             android:hint="Email ID"
-            />
+            android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/regNoWrapper"
+        style="@style/LoginTextInputLayoutStyle"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="460dp"
         android:layout_gravity="center_horizontal"
-        style="@style/LoginTextInputLayoutStyle"
-        android:textColorHint="@color/black"
-        >
+        android:layout_marginTop="460dp"
+        android:textColorHint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/regNo"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="Reg No." />
+            android:fontFamily="@font/acuminpro_regular"
+            android:hint="Reg No."
+            android:inputType="textPersonName" />
     </com.google.android.material.textfield.TextInputLayout>
-
 
 
     <ImageButton
         android:id="@+id/button"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="530dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="570dp"
         android:background="@drawable/custom_button"
         android:padding="10dp"
         android:src="@drawable/next" />

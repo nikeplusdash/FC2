@@ -19,5 +19,6 @@ public class IntroScreen2 extends Fragment {
         View v = inflater.inflate(R.layout.fragment_intro_screen2, container, false);
         ImageView i = v.findViewById(R.id.imageView2);
         Picasso.get().load(R.drawable.slide2).into(i);
-        return v;    }
+        return v;
+    }
 }

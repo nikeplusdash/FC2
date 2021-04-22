@@ -7,7 +7,7 @@
         android:id="@+id/splashFragment"
         android:name="com.foodmgmt.dontstarve.SplashFragment"
         android:label="fragment_splash"
-        tools:layout="@layout/fragment_splash" >
+        tools:layout="@layout/fragment_splash">
         <action
             android:id="@+id/action_splashFragment_to_viewPagerFragment"
             app:destination="@id/viewPagerFragment"
@@ -20,7 +20,7 @@
         android:id="@+id/viewPagerFragment"
         android:name="com.foodmgmt.dontstarve.onboarding.ViewPagerFragment"
         android:label="fragment_view_pager"
-        tools:layout="@layout/fragment_view_pager" >
+        tools:layout="@layout/fragment_view_pager">
         <action
             android:id="@+id/action_viewPagerFragment_to_register"
             app:destination="@id/register"
@@ -33,7 +33,7 @@
         android:id="@+id/register"
         android:name="com.foodmgmt.dontstarve.onboarding.Register"
         android:label="fragment_register"
-        tools:layout="@layout/fragment_register" >
+        tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_register_to_verify"
             app:destination="@id/verify" />

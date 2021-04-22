@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+<resources>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="camera">#F20D5E</color>
+    <color name="positive">#0D7AFF</color>
+    <color name="inactive">#D9D9D9</color>
+    <color name="active">#737373</color>
+    <color name="card1_end">#EAFEE2</color>
+    <color name="card2_start">#8D80FF</color>
+    <color name="card3_end">#FA82FF</color>
+    <color name="card4_start">#6EFFFF</color>
+    <color name="cards_color1">#F4F4F4</color>
+    <color name="cards_color2">#E7EFEE</color>
+    <color name="highlighted_card">#FBE970</color>
+    <color name="checkout">#FBB670</color>
+    <color name="text_color">#000000</color>
+    <color name="background_color">#FFFFFF</color>
 </resources>

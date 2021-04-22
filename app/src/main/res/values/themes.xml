@@ -1,19 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.DontStarve" parent="Theme.MaterialComponents.Light.NoActionBar">
-<!--        &lt;!&ndash; Primary brand color. &ndash;&gt;-->
-        <item name="colorPrimary">@color/black</item>
-<!--        <item name="colorPrimaryVariant">@color/black</item>-->
-        <item name="colorOnPrimary">@color/black</item>
-<!--        &lt;!&ndash; Secondary brand color. &ndash;&gt;-->
-<!--        <item name="colorSecondary">@color/teal_200</item>-->
-<!--        <item name="colorSecondaryVariant">@color/teal_700</item>-->
-<!--        <item name="colorOnSecondary">@color/black</item>-->
-<!--        &lt;!&ndash; Status bar color. &ndash;&gt;-->
-        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/active</item>
+        <item name="colorOnPrimary">@color/active</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="android:fontFamily">@font/acuminpro_regular</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
     </style>
+
     <style name="splashScreenTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/active</item>
+        <item name="colorOnPrimary">@color/active</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="android:fontFamily">@font/acuminpro_regular</item>
         <item name="android:windowBackground">@drawable/splash_image</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
     </style>
@@ -22,6 +21,4 @@
         <item name="boxStrokeColor">@color/text_input_box_stroke</item>
         <item name="android:textColorHint">@color/black</item>
     </style>
-
-
 </resources>

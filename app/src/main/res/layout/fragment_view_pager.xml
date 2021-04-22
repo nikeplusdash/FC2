@@ -22,7 +22,7 @@
         android:id="@+id/worm_dots_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
+        android:layout_margin="15dp"
         app:dotsColor="#0e7aff"
         app:dotsCornerRadius="8dp"
         app:dotsSize="16dp"
@@ -36,6 +36,5 @@
         app:layout_constraintVertical_bias="1.0"
         app:progressMode="true"
         app:selectedDotColor="#0e7aff" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

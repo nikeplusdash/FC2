@@ -3,14 +3,13 @@ package com.foodmgmt.dontstarve.onboarding;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.text.TextWatcher;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -23,30 +22,33 @@ public class Register extends Fragment {
     private TextInputLayout inputLayoutName, inputLayoutEmail, inputLayoutRegNo;
     private EditText inputName, inputEmail, inputRegNo;
     private ImageButton button;
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private static boolean isValidRegNo(String num) {
+        return !TextUtils.isEmpty(num) && TextUtils.isDigitsOnly(num) && num.length() == 9;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_register, container, false);
 
-        inputLayoutName = (TextInputLayout) v.findViewById(R.id.usernameWrapper);
-        inputLayoutEmail = (TextInputLayout) v.findViewById(R.id.emailWrapper);
-        inputLayoutRegNo = (TextInputLayout) v.findViewById(R.id.regNoWrapper);
-        inputName = (EditText) v.findViewById(R.id.username);
-        inputEmail = (EditText) v.findViewById(R.id.email);
-        inputRegNo = (EditText) v.findViewById(R.id.regNo);
-        button = (ImageButton) v.findViewById(R.id.button);
+        inputLayoutName = v.findViewById(R.id.usernameWrapper);
+        inputLayoutEmail = v.findViewById(R.id.emailWrapper);
+        inputLayoutRegNo = v.findViewById(R.id.regNoWrapper);
+        inputName = v.findViewById(R.id.username);
+        inputEmail = v.findViewById(R.id.email);
+        inputRegNo = v.findViewById(R.id.regNo);
+        button = v.findViewById(R.id.button);
 
         inputName.addTextChangedListener(new MyTextWatcher(inputName));
         inputEmail.addTextChangedListener(new MyTextWatcher(inputEmail));
         inputRegNo.addTextChangedListener(new MyTextWatcher(inputRegNo));
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                submitForm(v);
-
-            }
-        });
+        button.setOnClickListener(view -> submitForm(v));
 
         return v;
 
@@ -59,8 +61,11 @@ public class Register extends Fragment {
             return;
         if (!validateRegNo())
             return;
-
-        Navigation.findNavController(v).navigate(R.id.action_register_to_verify);
+        Bundle bundle = new Bundle();
+        bundle.putString("name", inputName.getText().toString().trim());
+        bundle.putString("email", inputEmail.getText().toString().trim());
+        bundle.putString("regno", inputRegNo.getText().toString().trim());
+        Navigation.findNavController(v).navigate(R.id.action_register_to_verify, bundle);
     }
 
     private boolean validateName() {
@@ -68,8 +73,7 @@ public class Register extends Fragment {
             inputLayoutName.setError("Enter Name");
             requestFocus(inputName);
             return false;
-        }
-        else {
+        } else {
             inputLayoutName.setErrorEnabled(false);
         }
         return true;
@@ -82,8 +86,7 @@ public class Register extends Fragment {
             inputLayoutEmail.setError("Enter valid Email ID");
             requestFocus(inputEmail);
             return false;
-        }
-        else {
+        } else {
             inputLayoutEmail.setErrorEnabled(false);
         }
         return true;
@@ -95,19 +98,10 @@ public class Register extends Fragment {
             inputLayoutRegNo.setError("Enter valid Reg No.");
             requestFocus(inputRegNo);
             return false;
-        }
-        else {
+        } else {
             inputLayoutRegNo.setErrorEnabled(false);
         }
         return true;
-    }
-
-    private static boolean isValidEmail(String email) {
-        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private static boolean isValidRegNo(String num) {
-        return !TextUtils.isEmpty(num) && TextUtils.isDigitsOnly(num) && num.length()==9;
     }
 
     private void requestFocus(View view) {
