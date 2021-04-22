@@ -33,5 +33,14 @@
         android:id="@+id/register"
         android:name="com.foodmgmt.dontstarve.onboarding.Register"
         android:label="fragment_register"
-        tools:layout="@layout/fragment_register" />
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_register_to_verify"
+            app:destination="@id/verify" />
+    </fragment>
+    <fragment
+        android:id="@+id/verify"
+        android:name="com.foodmgmt.dontstarve.onboarding.Verify"
+        android:label="fragment_verify"
+        tools:layout="@layout/fragment_verify" />
 </navigation>

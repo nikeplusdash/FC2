@@ -3,7 +3,9 @@
     <string name="slide1_text">Order food at one touch</string>
     <string name="slide2_text">Get the daily menu</string>
     <string name="slide3_text">Find the best time for yourself</string>
+    <string name="slide_register_text">Get Started</string>
     <string name="slide1_sub_text">And pay online or COD</string>
     <string name="slide2_sub_text">And carry the token with you</string>
+    <string name="register_sub_text">by registering below</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

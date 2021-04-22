@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.DontStarve" parent="Theme.MaterialComponents.Light.NoActionBar">
 <!--        &lt;!&ndash; Primary brand color. &ndash;&gt;-->
-        <item name="colorPrimary">@color/white</item>
-<!--        <item name="colorPrimaryVariant">@color/white</item>-->
+        <item name="colorPrimary">@color/black</item>
+<!--        <item name="colorPrimaryVariant">@color/black</item>-->
         <item name="colorOnPrimary">@color/black</item>
 <!--        &lt;!&ndash; Secondary brand color. &ndash;&gt;-->
 <!--        <item name="colorSecondary">@color/teal_200</item>-->
@@ -17,4 +17,11 @@
         <item name="android:windowBackground">@drawable/splash_image</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
     </style>
+
+    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/text_input_box_stroke</item>
+        <item name="android:textColorHint">@color/black</item>
+    </style>
+
+
 </resources>
