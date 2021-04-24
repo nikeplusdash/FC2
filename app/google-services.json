@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "456210893127",
+    "project_id": "don-t-starve-c1f9c",
+    "storage_bucket": "don-t-starve-c1f9c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456210893127:android:682344715e0e0e033ce462",
+        "android_client_info": {
+          "package_name": "com.foodmgmt.dontstarve"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "456210893127-0dgb86hv61vdos03v7ko1gs7h2t1u0gj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZjtQofcacL5uhSLAmBZB3RUqQaJV5kwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "456210893127-0dgb86hv61vdos03v7ko1gs7h2t1u0gj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
