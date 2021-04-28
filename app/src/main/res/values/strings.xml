@@ -7,4 +7,12 @@
     <string name="slide1_sub_text">And pay online or COD</string>
     <string name="slide2_sub_text">And carry the token with you</string>
     <string name="register_sub_text">by registering below</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="or">or</string>
+    <string name="verify_text">Verify yourself</string>
+    <string name="verify_sub_text">to access all features</string>
+    <string name="later_text">Do it later</string>
+    <string name="later_sub_text"><![CDATA[& try the app now]]></string>
+    <string name="daily_menu">Daily Menu</string>
 </resources>
