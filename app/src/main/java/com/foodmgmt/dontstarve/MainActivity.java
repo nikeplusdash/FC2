@@ -1,6 +1,9 @@
 package com.foodmgmt.dontstarve;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+    private boolean isOnboardingDone;
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
 
         Window win = activity.getWindow();
@@ -27,6 +31,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DontStarve);
+
+        SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
+        if(sp.contains("onboarding")) isOnboardingDone = sp.getBoolean("onboarding",false);
+        if(isOnboardingDone) {
+            Intent myIntent = new Intent(this, MainMenu.class);
+            myIntent.putExtra("name", sp.getString("name",""));
+            myIntent.putExtra("email", sp.getString("email",""));
+            myIntent.putExtra("regno", sp.getString("regno",""));
+            myIntent.putExtra("verification", sp.getBoolean("verification",false));
+            startActivity(myIntent);
+            finish();
+        }
+
         if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
             setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
         }
