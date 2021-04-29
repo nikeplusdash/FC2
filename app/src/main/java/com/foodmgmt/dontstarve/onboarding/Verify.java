@@ -103,7 +103,7 @@ public class Verify extends Fragment {
         camera_button.setOnClickListener(view -> dispatchTakePictureIntent(v));
 
         button.setOnClickListener(view -> {
-            isOnboardingDone = false;
+            isOnboardingDone = true;
             Toast.makeText(getActivity(), "You can use Verification tab to verify at a later date", Toast.LENGTH_LONG).show();
             thread.start();
             endOnboarding();
@@ -191,17 +191,17 @@ public class Verify extends Fragment {
                                     .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            failedAttempts += 1;
                                             mProgress.dismiss();
+                                            failedAttempts += 1;
                                         }
                                     })
                                     .setNegativeButton("Upload", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
+                                            mProgress.dismiss();
                                             performUpload(filepath,imgData);
                                         }
                                     }).show();
-                            mProgress.dismiss();
                         }
                     }
                 })
