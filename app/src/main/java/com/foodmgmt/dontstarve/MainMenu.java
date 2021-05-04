@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class MainMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,6 +23,8 @@ public class MainMenu extends AppCompatActivity {
 
         Boolean isVerified = intent.getBooleanExtra("verification",false);
         Boolean isOnboardingDone = intent.getBooleanExtra("onboarding",false);
+
+        // Add periodic fetch to see if user is verified & update if it is
 
         setContentView(R.layout.menu_activity);
     }

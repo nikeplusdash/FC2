@@ -14,11 +14,9 @@ import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
-import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -26,18 +24,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import com.foodmgmt.dontstarve.MainActivity;
+
 import com.foodmgmt.dontstarve.MainMenu;
 import com.foodmgmt.dontstarve.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -46,8 +50,8 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import static android.content.Context.CAMERA_SERVICE;
 
@@ -59,10 +63,11 @@ public class Verify extends Fragment {
     private String name, email, regno;
     private Thread thread;
     private int cameraId,rotation,failedAttempts;
-    private boolean isVerified = false, isOnboardingDone = false;
+    private boolean isVerified = false, isOnboardingDone = false, wasVerified = false;
     private ImageButton camera_button,button;
     private ProgressDialog mProgress;
     private StorageReference mStorage,filepath;
+    private DatabaseReference mDatabase;
     private View v;
     private byte[] imgData;
     private Bundle rebundle;
@@ -81,7 +86,8 @@ public class Verify extends Fragment {
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_verify, container, false);
         rebundle = new Bundle();
-        mStorage = FirebaseStorage.getInstance().getReferenceFromUrl("gs://don-t-starve-c1f9c.appspot.com");
+        mStorage = FirebaseStorage.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mProgress = new ProgressDialog(getContext());
         camera_button = v.findViewById(R.id.camera_button);
         button = v.findViewById(R.id.button);
@@ -90,11 +96,36 @@ public class Verify extends Fragment {
         regno = getArguments().getString("regno");
         isVerified = false;
         isOnboardingDone = false;
+        wasVerified = false;
         failedAttempts = 0;
         rebundle.putString("name",name);
         rebundle.putString("regno",regno);
         rebundle.putString("email",email);
+        mProgress.setMessage("Just a Moment");
+        mProgress.show();
+        mDatabase.child("users").child(regno).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users u = snapshot.getValue(Users.class);
+                mProgress.dismiss();
+                if(u == null) return;
+                if(u.getVerified()) {
+                    if(!name.equals(u.getName())) return;
+                    if(!email.equals(u.getEmail())) return;
+                    wasVerified = true;
+                    isVerified = true;
+                    isOnboardingDone = true;
+                    Toast.makeText(getActivity(), "You have already been verified", Toast.LENGTH_SHORT).show();
+                    thread.start();
+                    endOnboarding();
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, requestCode);
@@ -136,7 +167,7 @@ public class Verify extends Fragment {
             Bitmap imageBitmap = (Bitmap) extras.get("data");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             imgData = baos.toByteArray();
             performVerification(imageBitmap);
         }
@@ -151,6 +182,11 @@ public class Verify extends Fragment {
         editor.putBoolean("verification",isVerified);
         editor.putBoolean("onboarding",isOnboardingDone);
         editor.apply();
+
+        if(!wasVerified) {
+            Users u = new Users(email, regno, name, isVerified);
+            mDatabase.child("users").child(regno).setValue(u);
+        }
 
         Intent myIntent = new Intent(getContext(), MainMenu.class);
         myIntent.putExtra("name", name);
@@ -184,24 +220,28 @@ public class Verify extends Fragment {
                             }
                         }
                         if(!isVerified) {
-                            if(failedAttempts < 3)
-                            new AlertDialog.Builder(getContext())
-                                    .setTitle("Verification Failed")
-                                    .setMessage("There was an issue. Try again Later")
-                                    .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            mProgress.dismiss();
-                                            failedAttempts += 1;
-                                        }
-                                    })
-                                    .setNegativeButton("Upload", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            mProgress.dismiss();
-                                            performUpload(filepath,imgData);
-                                        }
-                                    }).show();
+                            if (failedAttempts < 3)
+                                new AlertDialog.Builder(getContext())
+                                        .setTitle("Verification Failed")
+                                        .setMessage("There was an issue. Try again Later")
+                                        .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                mProgress.dismiss();
+                                                failedAttempts += 1;
+                                            }
+                                        })
+                                        .setNegativeButton("Upload", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                mProgress.dismiss();
+                                                performUpload(filepath, imgData);
+                                            }
+                                        }).show();
+                            else {
+                                mProgress.dismiss();
+                                performUpload(filepath,imgData);
+                            }
                         }
                     }
                 })
@@ -218,7 +258,7 @@ public class Verify extends Fragment {
         mProgress.setMessage("Uploading Image...");
         mProgress.show();
         StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType("image/jpeg")
+                .setContentType("image/png")
                 .setCustomMetadata("Name", name)
                 .setCustomMetadata("RegNo", regno)
                 .setCustomMetadata("Email", email)

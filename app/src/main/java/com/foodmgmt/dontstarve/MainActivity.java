@@ -13,6 +13,8 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.FirebaseDatabase;
+
 public class MainActivity extends AppCompatActivity {
     private boolean isOnboardingDone;
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             myIntent.putExtra("email", sp.getString("email",""));
             myIntent.putExtra("regno", sp.getString("regno",""));
             myIntent.putExtra("verification", sp.getBoolean("verification",false));
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
             startActivity(myIntent);
             finish();
         }
