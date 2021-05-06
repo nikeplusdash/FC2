@@ -7,8 +7,9 @@
     <string name="slide1_sub_text">And pay online or COD</string>
     <string name="slide2_sub_text">And carry the token with you</string>
     <string name="register_sub_text">by registering below</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu1">Statistics</string>
+    <string name="menu2">Food Token</string>
+    <string name="menu3">Daily Menu</string>
     <string name="or">or</string>
     <string name="verify_text">Verify yourself</string>
     <string name="verify_sub_text">to access all features</string>

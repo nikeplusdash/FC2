@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_splash"
+    app:startDestination="@id/foodToken">
+    <fragment
+        android:id="@+id/dailyMenu"
+        android:name="com.foodmgmt.dontstarve.mainnav.DailyMenu"
+        android:label="fragment_daily_menu"
+        tools:layout="@layout/fragment_daily_menu">
+        <action
+            android:id="@+id/action_dailyMenu_to_foodToken"
+            app:destination="@id/foodToken" />
+        <action
+            android:id="@+id/action_dailyMenu_to_statistics"
+            app:destination="@id/statistics" />
+    </fragment>
+    <fragment
+        android:id="@+id/foodToken"
+        android:name="com.foodmgmt.dontstarve.mainnav.FoodToken"
+        android:label="fragment_food_token"
+        tools:layout="@layout/fragment_food_token">
+        <action
+            android:id="@+id/action_foodToken_to_dailyMenu"
+            app:destination="@id/dailyMenu" />
+        <action
+            android:id="@+id/action_foodToken_to_statistics"
+            app:destination="@id/statistics" />
+    </fragment>
+    <fragment
+        android:id="@+id/statistics"
+        android:name="com.foodmgmt.dontstarve.mainnav.Statistics"
+        android:label="fragment_statistics"
+        tools:layout="@layout/fragment_statistics">
+        <action
+            android:id="@+id/action_statistics_to_foodToken"
+            app:destination="@id/foodToken" />
+        <action
+            android:id="@+id/action_statistics_to_dailyMenu"
+            app:destination="@id/dailyMenu" />
+    </fragment>
+</navigation>

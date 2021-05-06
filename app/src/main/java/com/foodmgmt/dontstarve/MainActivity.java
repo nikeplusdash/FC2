@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isOnboardingDone;
+
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
 
         Window win = activity.getWindow();
@@ -33,15 +34,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DontStarve);
+        setContentView(R.layout.activity_main);
 
         SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
-        if(sp.contains("onboarding")) isOnboardingDone = sp.getBoolean("onboarding",false);
-        if(isOnboardingDone) {
+        if (sp.contains("onboarding")) isOnboardingDone = sp.getBoolean("onboarding", false);
+        if (isOnboardingDone) {
             Intent myIntent = new Intent(this, MainMenu.class);
-            myIntent.putExtra("name", sp.getString("name",""));
-            myIntent.putExtra("email", sp.getString("email",""));
-            myIntent.putExtra("regno", sp.getString("regno",""));
-            myIntent.putExtra("verification", sp.getBoolean("verification",false));
+            myIntent.putExtra("name", sp.getString("name", ""));
+            myIntent.putExtra("email", sp.getString("email", ""));
+            myIntent.putExtra("regno", sp.getString("regno", ""));
+            myIntent.putExtra("verification", sp.getBoolean("verification", false));
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
             startActivity(myIntent);
             finish();
@@ -57,6 +59,5 @@ public class MainActivity extends AppCompatActivity {
             setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-        setContentView(R.layout.activity_main);
     }
 }

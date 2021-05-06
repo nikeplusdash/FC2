@@ -42,7 +42,7 @@
         android:id="@+id/verify"
         android:name="com.foodmgmt.dontstarve.onboarding.Verify"
         android:label="fragment_verify"
-        tools:layout="@layout/fragment_verify" >
+        tools:layout="@layout/fragment_verify">
         <action
             android:id="@+id/action_verify_self"
             app:destination="@id/verify" />
