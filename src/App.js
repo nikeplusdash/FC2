@@ -22,7 +22,7 @@ class App extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			isMenu: true,
+			isMenu: false,
 			vData: [],
 			breakfast: [],
 			lunch: [],
@@ -31,10 +31,10 @@ class App extends React.Component {
 		}
 		this.renderMenu = this.renderMenu.bind(this)
 		this.renderVerify = this.renderVerify.bind(this)
+		this.handleSubmit2 = this.handleSubmit2.bind(this)
 		this.db = firebase.database()
 		this.storage = firebase.storage().ref('/Photos');
 		this.vSet = new Set([])
-		this.handleSubmit2 = this.handleSubmit2.bind(this)
 	}
 	componentDidMount() {
 		this.db.ref('/users').on('value', snapshot => {
@@ -48,6 +48,7 @@ class App extends React.Component {
 		})
 		this.db.ref('/menu').on('value', snapshot => {
 			const data = Object.values(snapshot.val())
+			this.forceUpdate()
 			this.setState({
 				breakfast: data[0],
 				lunch: data[1],
@@ -128,7 +129,7 @@ class App extends React.Component {
 		return (
 			<div className="App">
 				<div className="switch" style={{ margin: "30px" }}>
-					<label>Menu<input type="checkbox" onChange={e => this.setState({ isMenu: !this.state.isMenu })} /><span className="lever"></span>Verification</label>
+					<label>Verification<input type="checkbox" onChange={e => this.setState({ isMenu: !this.state.isMenu })} /><span className="lever"></span>Menu</label>
 				</div>
 				{this.state.isMenu ? this.renderMenu() : this.renderVerify()}
 			</div>
