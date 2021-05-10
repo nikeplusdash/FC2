@@ -7,36 +7,93 @@
     android:layout_height="match_parent"
     tools:context=".mainnav.FoodToken">
 
-    <TextView
-        android:id="@+id/textView7"
+    <ImageView
+        android:id="@+id/vimageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Food Token"
+        android:minWidth="30dp"
+        android:minHeight="30dp"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:src="@drawable/pending"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/vimageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="90dp"
+        android:minHeight="90dp"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:src="@drawable/pending"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/vimageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="150dp"
+        android:minHeight="150dp"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:src="@drawable/pending"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/vbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="241dp"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/textView6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
+        android:width="120dp"
+        android:height="60dp"
+        android:background="@drawable/custom_button"
+        android:elevation="16dp"
+        android:fontFamily="@font/bebasneue_bold"
+        android:text="Start"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/nvText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/aktivgrotesk_medium"
+        android:text="You have not been verified yet"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/coolvetica"
+        android:text="Food Token"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -182,7 +182,7 @@ public class Verify extends Fragment {
         editor.putString("regno", regno);
         editor.putBoolean("verification", isVerified);
         editor.putBoolean("onboarding", isOnboardingDone);
-        editor.apply();
+        editor.commit();
 
         if (!wasVerified) {
             Users u = new Users(email, regno, name, isVerified);
