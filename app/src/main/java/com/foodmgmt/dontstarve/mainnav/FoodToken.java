@@ -67,7 +67,7 @@ public class FoodToken extends Fragment {
         }
         if(isVerified) {
             vB.setOnClickListener(v -> {
-                if(!mm.nfcPresent) return;
+                if(!mm.nfcPresent || mm.nfcAdapter == null) return;
                 if(!mm.nfcAdapter.isEnabled()) {
                     Toast.makeText(mm, "Please enable NFC.", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));

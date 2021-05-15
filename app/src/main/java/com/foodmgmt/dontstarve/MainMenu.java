@@ -97,13 +97,12 @@ public class MainMenu extends AppCompatActivity{
 
         //  NFC
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        PackageManager pm = getPackageManager();
         if (nfcAdapter == null) {
             Toast.makeText(this,"This device doesn't support NFC.", Toast.LENGTH_LONG).show();
             nfcPresent = false;
         }
         else nfcPresent = true;
-        if(!nfcAdapter.isEnabled() && nfcPresent){
+        if(nfcPresent && !nfcAdapter.isEnabled()){
             Toast.makeText(this, "Please enable NFC.", Toast.LENGTH_SHORT).show();
         }
 
