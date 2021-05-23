@@ -1,5 +1,6 @@
 package com.foodmgmt.dontstarve;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,18 +18,35 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.foodmgmt.dontstarve.mainnav.DailyMenu;
 import com.foodmgmt.dontstarve.mainnav.FoodToken;
+import com.foodmgmt.dontstarve.mainnav.GeofenceHelper;
 import com.foodmgmt.dontstarve.mainnav.Statistics;
 import com.fxn.BubbleTabBar;
 import com.fxn.OnBubbleClickListener;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static android.nfc.NdefRecord.createMime;
@@ -41,6 +59,19 @@ public class MainMenu extends AppCompatActivity{
     public IntentFilter[] intentFiltersArray;
     public String[][] techListsArray;
     public PendingIntent pendingIntent;
+
+    private static final String TAG = "Geofence";
+    private GeofencingClient geofencingClient;
+    private GeofenceHelper geofenceHelper;
+    private float GEOFENCE_RADIUS = 200;
+    private String GEOFENCE_ID = "FC_2";
+    private int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
+    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+    private List<Geofence> geofenceList = new ArrayList<>();
+    private PendingIntent geofencePendingIntent;
+    LatLng FC2 = new LatLng(13.345614740234748, 74.7964322234682);
+    public int No_of_people = 0;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DontStarve);
@@ -52,6 +83,10 @@ public class MainMenu extends AppCompatActivity{
         regno = b.getString("regno");
         isVerified = b.getBoolean("verification", false);
         isOnboardingDone = b.getBoolean("onboarding", false);
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference crowd = database.getReference("crowd");
+        crowd.setValue(101);
 
         BubbleTabBar bar = findViewById(R.id.bubbleTabBar);
         bar.addBubbleListener(new OnBubbleClickListener() {
@@ -116,6 +151,95 @@ public class MainMenu extends AppCompatActivity{
         }
         intentFiltersArray = new IntentFilter[] {ndef, };
         techListsArray = new String[][] { new String[] { NfcA.class.getName() } };
+
+        enableUserLocation();
+        crowd.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Integer value = dataSnapshot.getValue(Integer.class);
+                No_of_people = value;
+                Log.d(TAG, "Value is: " + value);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
+    }
+
+    private void enableUserLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            //mMap.setMyLocationEnabled(true);
+        } else {
+            //Ask for permission
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                //We need to show user a dialog for displaying why the permission is needed and then ask for the permission...
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
+            }
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == FINE_LOCATION_ACCESS_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //We have the permission
+                //mMap.setMyLocationEnabled(true);
+            } else {
+                //We do not have the permission..
+
+            }
+        }
+
+        if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //We have the permission
+                addGeofence(FC2, GEOFENCE_RADIUS);
+                Toast.makeText(this, "You can add geofences...", Toast.LENGTH_SHORT).show();
+            } else {
+                //We do not have the permission..
+                Toast.makeText(this, "Background location access is neccessary for geofences to trigger...", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void addGeofence(LatLng latLng, float radius) {
+
+        Geofence geofence = geofenceHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: Geofence Added...");
+                        Toast.makeText(MainMenu.this,"Geofence created Successfully.", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String errorMessage = geofenceHelper.getErrorString(e);
+                        Toast.makeText(MainMenu.this,"Geofence Failed.", Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "onFailure: " + errorMessage);
+                    }
+                });
     }
 
     public void onPause() {

@@ -16,5 +16,6 @@
     <string name="later_text">Do it later</string>
     <string name="later_sub_text"><![CDATA[& try the app now]]></string>
     <string name="daily_menu">Daily Menu</string>
+    <string name="statistics">Statistics</string>
 
 </resources>
