@@ -1,21 +1,19 @@
 package com.foodmgmt.dontstarve.mainnav;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.foodmgmt.dontstarve.R;
 import com.loopeer.cardstack.CardStackView;
 import com.loopeer.cardstack.StackAdapter;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +25,8 @@ public class CardStackAdapter extends StackAdapter<Integer> {
     Collection<Object> food_items;
     String[] food_time;
     String[] timing;
-    public CardStackAdapter(Context context)
-    {
+
+    public CardStackAdapter(Context context) {
         super(context);
         //mContext = context;
     }
@@ -45,7 +43,7 @@ public class CardStackAdapter extends StackAdapter<Integer> {
 
     @Override
     protected CardStackView.ViewHolder onCreateView(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cards_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cards_item_2, parent, false);
         CardViewHolder holder = new CardViewHolder(view);
         System.out.println("onCreateView");
         return holder;
@@ -53,10 +51,9 @@ public class CardStackAdapter extends StackAdapter<Integer> {
 
     @Override
     public void bindView(Integer data, int position, CardStackView.ViewHolder holder) {
-        if(holder instanceof CardViewHolder)
-        {
-            CardViewHolder cardHolder = (CardViewHolder)holder;
-            cardHolder.onBind(data,position, food_items, timing[position], food_time[position]);
+        if (holder instanceof CardViewHolder) {
+            CardViewHolder cardHolder = (CardViewHolder) holder;
+            cardHolder.onBind(data, position, food_items, timing[position], food_time[position]);
         }
         System.out.println("bindView");
     }
@@ -80,39 +77,42 @@ public class CardStackAdapter extends StackAdapter<Integer> {
         return super.getItem(position);
     }
 
-    public static class CardViewHolder extends CardStackView.ViewHolder
-    {
+    public static class CardViewHolder extends CardStackView.ViewHolder {
         View root;
         FrameLayout cardTitle;
         RecyclerView foodList;
-        TextView titleText;
-        public CardViewHolder(View view)
-        {
+        TextView titleText, timingText;
+
+        public CardViewHolder(View view) {
             super(view);
             root = view;
-            cardTitle = (FrameLayout)view.findViewById(R.id.card_title);
-            titleText = (TextView)view.findViewById(R.id.card_title_text);
-            foodList = (RecyclerView)view.findViewById(R.id.food_list);
+            cardTitle = (FrameLayout) view.findViewById(R.id.card_title);
+            titleText = (TextView) view.findViewById(R.id.card_title_text);
+            timingText = (TextView) view.findViewById(R.id.timing);
+            foodList = (RecyclerView) view.findViewById(R.id.food_list);
             System.out.println("CardViewHolder constructor");
         }
 
-        public void onBind(Integer backgroundColorId,int position,Collection<Object> dataList, String timing,String food_time)
-        {
+        public void onBind(Integer backgroundColorId, int position, Collection<Object> dataList, String timing, String food_time) {
+
             Object[] trial = dataList.toArray();
             Object items = trial[position];
-            List<?> item_list = (List)items;
-           // cardTitle.getBackground().setColorFilter(ContextCompat.getColor(getContext(),backgroundColorId), PorterDuff.Mode.SRC_IN);
+            List<?> item_list = (List) items;
+            // cardTitle.getBackground().setColorFilter(ContextCompat.getColor(getContext(),backgroundColorId), PorterDuff.Mode.SRC_IN);
             cardTitle.setBackgroundResource(backgroundColorId);
-            MenuListAdapter adapter = new MenuListAdapter(item_list, timing);
+            MenuListAdapter adapter = new MenuListAdapter(item_list);
             foodList.setLayoutManager(new LinearLayoutManager(getContext()));
             foodList.setAdapter(adapter);
+            foodList.setItemViewCacheSize(7);
             titleText.setText(food_time);
+            timingText.setText(timing);
             System.out.println("holder onBind");
         }
 
         @Override
         public void onItemExpand(boolean b) {
             foodList.setVisibility(b ? View.VISIBLE : View.GONE);
+            timingText.setVisibility(b ? View.VISIBLE : View.GONE);
             System.out.println("holder onItemExpand");
         }
     }

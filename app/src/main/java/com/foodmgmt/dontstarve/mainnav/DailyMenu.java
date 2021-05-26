@@ -1,44 +1,29 @@
 package com.foodmgmt.dontstarve.mainnav;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.foodmgmt.dontstarve.MainActivity;
 import com.foodmgmt.dontstarve.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.loopeer.cardstack.AllMoveDownAnimatorAdapter;
 import com.loopeer.cardstack.CardStackView;
-import com.loopeer.cardstack.UpDownAnimatorAdapter;
-import com.loopeer.cardstack.UpDownStackAnimatorAdapter;
 
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static android.content.ContentValues.TAG;
-
-public class DailyMenu extends Fragment implements CardStackView.ItemExpendListener{
+public class DailyMenu extends Fragment implements CardStackView.ItemExpendListener {
     private View v;
     Integer[] color = {
             R.drawable.card_bg1,
@@ -46,13 +31,7 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
             R.drawable.card_bg3,
             R.drawable.card_bg4,
     };
-
-    String[][] food_name = {{"Bread","Butter/Jam","Egg/Fruits","Tea/Coffee","Poha"},
-                            {"Dal","Rice","Roti","Cauliflower","Rasam"},
-                            {"Sandwich","Juice","Candy","Tea/Coffee","Samosa"},
-                            {"Chicken","Paneer","Roti","Rice","Dal"}};
-    String[] timings = {"TIMING: 7:00AM to 9:30AM", "TIMING: 7:30PM to 9:30PM","TIMING: 4:30PM to 6:00PM","TIMING: 12:00PM to 2:30PM"};
-    //TEST DATA
+    String[] timings = {"TIMING: 7:00AM to 9:30AM", "TIMING: 7:30PM to 9:30PM", "TIMING: 4:30PM to 6:00PM", "TIMING: 12:00PM to 2:30PM"};
 
     private CardStackView mCardStack;
     private CardStackAdapter adapter;
@@ -61,7 +40,7 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
     private Collection<Object> food_items;
     private Set<String> food_type;
     String[] food_timings;
-    private HashMap<String,String> new_menu_map;
+    private HashMap<String, String> new_menu_map;
 
 
     @Override
@@ -79,7 +58,8 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_daily_menu, container, false);
-        mCardStack = (CardStackView)v.findViewById(R.id.cardStackView);
+
+        mCardStack = (CardStackView) v.findViewById(R.id.cardStackView);
         adapter = new CardStackAdapter(getActivity());
         mCardStack.setAdapter(adapter);
         mCardStack.setItemExpendListener(this);
@@ -88,7 +68,7 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
 
         //mCardStack.setAnimatorAdapter(new AllMoveDownAnimatorAdapter(mCardStack));
         //mCardStack.setAnimatorAdapter(new UpDownAnimatorAdapter(mCardStack));
-        mCardStack.setAnimatorAdapter(new UpDownStackAnimatorAdapter(mCardStack));
+        mCardStack.setAnimationType(CardStackView.UP_DOWN_STACK);
         return v;
 
     }
@@ -97,18 +77,18 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
 
         // calling add value event listener method
         // for getting the values from database.
-        mDatabase.addValueEventListener(new ValueEventListener() {
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                menu_map = (HashMap<String,Object>) snapshot.getValue();
+                menu_map = (HashMap<String, Object>) snapshot.getValue();
                 food_items = menu_map.values();
                 food_type = menu_map.keySet();
                 food_timings = new String[food_type.size()];
                 int i = 0;
-                for (String s: food_type) {
+                for (String s : food_type) {
                     food_timings[i++] = s;
                 }
-                adapter.updateData(Arrays.asList(color),food_items,timings,food_timings);
+                adapter.updateData(Arrays.asList(color), food_items, timings, food_timings);
             }
 
             @Override

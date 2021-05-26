@@ -13,13 +13,11 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.FirebaseDatabase;
-
 public class MainActivity extends AppCompatActivity {
-    private boolean isOnboardingDone;
+    protected boolean isOnboardingDone, isVerified;
+    protected String name, email, regno;
 
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
-
         Window win = activity.getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
         if (on) {
@@ -36,15 +34,21 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.Theme_DontStarve);
         setContentView(R.layout.activity_main);
 
+        // Accessing Shared Preferences to see if User has completed onboarding if not then continue to Onboarding Session
         SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
         if (sp.contains("onboarding")) isOnboardingDone = sp.getBoolean("onboarding", false);
         if (isOnboardingDone) {
+            name = sp.getString("name", "");
+            email = sp.getString("email", "");
+            regno = sp.getString("regno", "");
+            isVerified = sp.getBoolean("verification", false);
+
+            // Bundle up variables and sending to backend
             Intent myIntent = new Intent(this, MainMenu.class);
-            myIntent.putExtra("name", sp.getString("name", ""));
-            myIntent.putExtra("email", sp.getString("email", ""));
-            myIntent.putExtra("regno", sp.getString("regno", ""));
-            myIntent.putExtra("verification", sp.getBoolean("verification", false));
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+            myIntent.putExtra("name", name);
+            myIntent.putExtra("email", email);
+            myIntent.putExtra("regno", regno);
+            myIntent.putExtra("verification", isVerified);
             startActivity(myIntent);
             finish();
         }

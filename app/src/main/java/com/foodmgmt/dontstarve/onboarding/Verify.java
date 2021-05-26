@@ -86,12 +86,15 @@ public class Verify extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_verify, container, false);
-        rebundle = new Bundle();
+
         mStorage = FirebaseStorage.getInstance().getReference();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mProgress = new ProgressDialog(getContext());
+        rebundle = new Bundle();
+
         camera_button = v.findViewById(R.id.camera_button);
         button = v.findViewById(R.id.button);
+
         name = getArguments().getString("name");
         email = getArguments().getString("email");
         regno = getArguments().getString("regno");
@@ -99,6 +102,7 @@ public class Verify extends Fragment {
         isOnboardingDone = false;
         wasVerified = false;
         failedAttempts = 0;
+
         rebundle.putString("name", name);
         rebundle.putString("regno", regno);
         rebundle.putString("email", email);
@@ -124,7 +128,6 @@ public class Verify extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 
@@ -184,10 +187,8 @@ public class Verify extends Fragment {
         editor.putBoolean("onboarding", isOnboardingDone);
         editor.commit();
 
-        if (!wasVerified) {
-            Users u = new Users(email, regno, name, isVerified);
-            mDatabase.child("users").child(regno).setValue(u);
-        }
+        Users u = new Users(email, regno, name, isVerified);
+        mDatabase.child("users").child(regno).setValue(u);
 
         Intent myIntent = new Intent(getContext(), MainMenu.class);
         myIntent.putExtra("name", name);

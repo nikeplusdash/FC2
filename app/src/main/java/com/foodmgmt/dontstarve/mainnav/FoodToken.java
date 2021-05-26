@@ -1,20 +1,9 @@
 package com.foodmgmt.dontstarve.mainnav;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
-import android.nfc.Tag;
-import android.nfc.tech.MifareUltralight;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +18,6 @@ import androidx.fragment.app.Fragment;
 import com.foodmgmt.dontstarve.MainMenu;
 import com.foodmgmt.dontstarve.R;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Locale;
-
-import static android.nfc.NdefRecord.createMime;
-
 public class FoodToken extends Fragment {
     private View view;
     private String name, regno, email;
@@ -42,7 +25,7 @@ public class FoodToken extends Fragment {
     private boolean isVerified;
     private Button vB;
     private Handler handlerAnim;
-    private ImageView iv0,iv1,iv2;
+    private ImageView iv0, iv1, iv2;
     private static boolean click = false;
 
     @Override
@@ -55,20 +38,23 @@ public class FoodToken extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_food_token, container, false);
+
             iv0 = view.findViewById(R.id.vimageView);
             iv1 = view.findViewById(R.id.vimageView2);
             iv2 = view.findViewById(R.id.vimageView3);
             vB = view.findViewById(R.id.vbutton);
+
             mm = (MainMenu) getActivity();
             name = mm.name;
-            regno =  mm.regno;
-            email =  mm.email;
-            isVerified =  mm.isVerified;
+            regno = mm.regno;
+            email = mm.email;
+            isVerified = mm.isVerified;
         }
-        if(isVerified) {
+
+        if (isVerified) {
             vB.setOnClickListener(v -> {
-                if(!mm.nfcPresent || mm.nfcAdapter == null) return;
-                if(!mm.nfcAdapter.isEnabled()) {
+                if (!mm.nfcPresent || mm.nfcAdapter == null) return;
+                if (!mm.nfcAdapter.isEnabled()) {
                     Toast.makeText(mm, "Please enable NFC.", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
                     return;
@@ -92,15 +78,18 @@ public class FoodToken extends Fragment {
             TextView tv = view.findViewById(R.id.nvText);
             tv.setVisibility(View.VISIBLE);
         }
-        if(click) {
+        if (click) {
             vB.setText("Stop");
             mm.startNFC();
+
             iv0.setVisibility(View.VISIBLE);
             iv1.setVisibility(View.VISIBLE);
             iv2.setVisibility(View.VISIBLE);
+
             iv0.setAlpha(1f);
             iv1.setAlpha(1f);
             iv2.setAlpha(1f);
+
             anime.run();
         }
         return view;
@@ -118,7 +107,8 @@ public class FoodToken extends Fragment {
         @Override
         public void run() {
             // Start Transmitting NFC
-            mm.nfcAdapter.setNdefPushMessage(mm.createMsg("RegNo: " + regno+"\nName: "+name),mm);
+            mm.nfcAdapter.setNdefPushMessage(mm.createMsg("RegNo: " + regno + "\nName: " + name), mm);
+
             iv0.animate().scaleX(2.25f).scaleY(2.25f).alpha(0f).setDuration(1800).withEndAction(() -> {
                 iv0.setScaleX(0f);
                 iv0.setScaleY(0f);
@@ -134,7 +124,8 @@ public class FoodToken extends Fragment {
                 iv2.setScaleY(0f);
                 iv2.setAlpha(1f);
             });
-            handlerAnim.postDelayed(anime,2000);
+
+            handlerAnim.postDelayed(anime, 2000);
         }
     };
 }

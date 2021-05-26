@@ -24,29 +24,39 @@ public class ViewPagerFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_view_pager, container, false);
         ArrayList<Fragment> aF = new ArrayList<>();
+
+        // Adding All Onboarding Screens to an arrayList that would be sent to Adapter
         aF.add(new IntroScreen1());
         aF.add(new IntroScreen2());
         aF.add(new IntroScreen3());
-        ViewPagerAdapter vpa = new ViewPagerAdapter(aF, requireActivity().getSupportFragmentManager(), getLifecycle());
+
+        // ViewPager2 being assigned an adapter
         ViewPager2 vp2 = v.findViewById(R.id.pager);
+        ViewPagerAdapter vpa = new ViewPagerAdapter(aF, requireActivity().getSupportFragmentManager(), getLifecycle());
         vp2.setOffscreenPageLimit(2);
         vp2.setAdapter(vpa);
 
+        // Dotindicator for each view page
         DotsIndicator dotsIndicator = v.findViewById(R.id.worm_dots_indicator);
         dotsIndicator.setViewPager2(vp2);
 
+        // Animation Transformer for ViewPager
         vp2.setPageTransformer((View view, float position) -> {
             int pageWidth = view.getWidth();
             ImageView iv = view.findViewById(R.id.imageView2);
             TextView tv = view.findViewById(R.id.txt);
             TextView stv = view.findViewById(R.id.subtxt);
 
-            if (position < -1) { // [-Infinity,-1)
+            if (position < -1) {
+                // [-Infinity,-1)
                 // This page is way off-screen to the left.
                 view.setAlpha(1);
-            } else if (position <= 1) { // [-1,1]
-                iv.setTranslationX(Math.abs(position) * (pageWidth / 4f)); //Half the normal speed
-            } else { // (1,+Infinity]
+            } else if (position <= 1) {
+                // [-1,1]
+                // The Current Page
+                iv.setTranslationX(Math.abs(position) * (pageWidth / 4f));
+            } else {
+                // (1,+Infinity]
                 // This page is way off-screen to the right.
                 view.setAlpha(1);
             }

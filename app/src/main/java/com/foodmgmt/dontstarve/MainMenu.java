@@ -2,19 +2,16 @@ package com.foodmgmt.dontstarve;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
-import android.nfc.Tag;
-import android.nfc.tech.MifareUltralight;
 import android.nfc.tech.NfcA;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +26,7 @@ import com.foodmgmt.dontstarve.mainnav.DailyMenu;
 import com.foodmgmt.dontstarve.mainnav.FoodToken;
 import com.foodmgmt.dontstarve.mainnav.GeofenceHelper;
 import com.foodmgmt.dontstarve.mainnav.Statistics;
+import com.foodmgmt.dontstarve.onboarding.Users;
 import com.fxn.BubbleTabBar;
 import com.fxn.OnBubbleClickListener;
 import com.google.android.gms.location.Geofence;
@@ -43,24 +41,24 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static android.nfc.NdefRecord.createMime;
-
-public class MainMenu extends AppCompatActivity{
+public class MainMenu extends AppCompatActivity {
+    private static final String TAG = "Geofence";
     final int foodID = R.id.food, dailyID = R.id.daily, statsID = R.id.stats;
-    public String name,regno,email;
-    public boolean isVerified, isOnboardingDone, nfcPresent;
+    public String name, regno, email;
+    public boolean isVerified, nfcPresent;
     public NfcAdapter nfcAdapter;
     public IntentFilter[] intentFiltersArray;
     public String[][] techListsArray;
     public PendingIntent pendingIntent;
-
-    private static final String TAG = "Geofence";
+    public int No_of_people = 0;
+    LatLng FC2 = new LatLng(13.345614740234748, 74.7964322234682);
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
     private float GEOFENCE_RADIUS = 200;
@@ -69,25 +67,52 @@ public class MainMenu extends AppCompatActivity{
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private List<Geofence> geofenceList = new ArrayList<>();
     private PendingIntent geofencePendingIntent;
-    LatLng FC2 = new LatLng(13.345614740234748, 74.7964322234682);
-    public int No_of_people = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DontStarve);
         setContentView(R.layout.menu_activity);
 
+        // Retrieve Bundle from Intent
         Bundle b = getIntent().getExtras();
         name = b.getString("name");
         email = b.getString("email");
         regno = b.getString("regno");
         isVerified = b.getBoolean("verification", false);
-        isOnboardingDone = b.getBoolean("onboarding", false);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        // Check if user was verified by Admin later
+        DatabaseReference user = database.getReference();
+        user.child("users").child(regno).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                Users u = snapshot.getValue(Users.class);
+                if (!isVerified)
+                    Toast.makeText(MainMenu.this, "You have been verified", Toast.LENGTH_SHORT).show();
+                SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putBoolean("verification", u.getVerified());
+                editor.commit();
+                isVerified = u.getVerified();
+
+                FragmentManager fm = getSupportFragmentManager();
+                Fragment f = fm.findFragmentById(R.id.container2);
+                fm.beginTransaction()
+                        .detach(f)
+                        .attach(f)
+                        .commit();
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
+        });
+
+        // Getting reference of crowd from Database
         DatabaseReference crowd = database.getReference("crowd");
         crowd.setValue(101);
 
+        // Bottom Navigation Bar to respond accordingly
         BubbleTabBar bar = findViewById(R.id.bubbleTabBar);
         bar.addBubbleListener(new OnBubbleClickListener() {
             @Override
@@ -127,32 +152,33 @@ public class MainMenu extends AppCompatActivity{
             }
         });
 
-        // Add periodic fetch to see if user is verified & update if it is
-
-
-        //  NFC
+        //  NFC Adapter Implementation to check if NFC is present
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
-            Toast.makeText(this,"This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
             nfcPresent = false;
-        }
-        else nfcPresent = true;
-        if(nfcPresent && !nfcAdapter.isEnabled()){
+        } else nfcPresent = true;
+        if (nfcPresent && !nfcAdapter.isEnabled()) {
             Toast.makeText(this, "Please enable NFC.", Toast.LENGTH_SHORT).show();
         }
 
+        // Initiate an NFC Intent Handler
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         try {
-            ndef.addDataType("*/*");    /* Handles all MIME based dispatches.
-                                       You should specify only the ones that you need. */
+            // Handles all MIME based dispatches.
+            ndef.addDataType("*/*");
         } catch (IntentFilter.MalformedMimeTypeException e) {
             throw new RuntimeException("fail", e);
         }
-        intentFiltersArray = new IntentFilter[] {ndef, };
-        techListsArray = new String[][] { new String[] { NfcA.class.getName() } };
+        intentFiltersArray = new IntentFilter[]{ndef,};
+        // Allowed NFC Device Types
+        techListsArray = new String[][]{new String[]{NfcA.class.getName()}};
 
+        // Permission Access for Background/Fine Location
         enableUserLocation();
+
+        // Logging data change
         crowd.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -162,6 +188,7 @@ public class MainMenu extends AppCompatActivity{
                 No_of_people = value;
                 Log.d(TAG, "Value is: " + value);
             }
+
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
@@ -186,6 +213,7 @@ public class MainMenu extends AppCompatActivity{
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == FINE_LOCATION_ACCESS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //We have the permission
@@ -229,35 +257,30 @@ public class MainMenu extends AppCompatActivity{
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "onSuccess: Geofence Added...");
-                        Toast.makeText(MainMenu.this,"Geofence created Successfully.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainMenu.this, "Geofence created Successfully.", Toast.LENGTH_LONG).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         String errorMessage = geofenceHelper.getErrorString(e);
-                        Toast.makeText(MainMenu.this,"Geofence Failed.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainMenu.this, "Geofence Failed.", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "onFailure: " + errorMessage);
                     }
                 });
     }
 
-    public void onPause() {
-        super.onPause();
-    }
-
-    public void onResume() {
-        super.onResume();
-    }
-
+    // Disable NFC Intent Capture
     public void stopNFC() {
         nfcAdapter.disableForegroundDispatch(this);
     }
 
+    // Enable NFC Intent Capture
     public void startNFC() {
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
     }
 
+    // Sending User's NAME & REGNO to the NFC host detected nearby
     public NdefMessage createMsg(String payload) {
         Locale locale = new Locale("en");
         Boolean encodeInUtf8 = true;

@@ -25,7 +25,15 @@
             android:textSize="35dp"
              />
     </FrameLayout>
-
+    <TextView
+        android:id="@+id/timing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="TIMING: 7:00 AM to 9:30 AM"
+        android:textStyle="bold"
+        android:textColor="@color/text_black"
+        android:textSize="15sp" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
