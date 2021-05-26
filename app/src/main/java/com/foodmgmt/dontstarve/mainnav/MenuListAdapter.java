@@ -8,12 +8,15 @@ import android.widget.TextView;
 
 import com.foodmgmt.dontstarve.R;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.MenuViewHolder> {
-    List<MenuData> menu_list;
+    List<?> menu_list;
     String time_range;
-    public MenuListAdapter(List<MenuData> list, String time_range)
+
+    public MenuListAdapter(List<?> list, String time_range)
     {
         menu_list = list;
         this.time_range = time_range;
@@ -43,12 +46,11 @@ public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.MenuVi
 
     @Override
     public void onBindViewHolder(MenuViewHolder holder, int position) {
-        String[] item_list = menu_list.get(position).getItemList();
-        holder.item1.setText(item_list[0]);
-        holder.item2.setText(item_list[1]);
-        holder.item3.setText(item_list[2]);
-        holder.item4.setText(item_list[3]);
-        holder.item5.setText(item_list[4]);
+        holder.item1.setText((String)menu_list.get(0));
+        holder.item2.setText((String)menu_list.get(1));
+        holder.item3.setText((String)menu_list.get(2));
+        holder.item4.setText((String)menu_list.get(3));
+        holder.item5.setText((String)menu_list.get(4));
         holder.timing.setText(time_range);
     }
 

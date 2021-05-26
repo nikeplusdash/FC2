@@ -15,11 +15,16 @@ import com.foodmgmt.dontstarve.R;
 import com.loopeer.cardstack.CardStackView;
 import com.loopeer.cardstack.StackAdapter;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class CardStackAdapter extends StackAdapter<Integer> {
     //Context mContext;
-    List<List<MenuData>> MenuList;
+
+    Set<String> food_type;
+    Collection<Object> food_items;
     String[] food_time;
     String[] timing;
     public CardStackAdapter(Context context)
@@ -29,9 +34,10 @@ public class CardStackAdapter extends StackAdapter<Integer> {
     }
 
 
-    public void updateData(List data,List<List<MenuData>> MenuList, String[] timing, String[] food_time) {
+    public void updateData(List data, Collection<Object> food_items, String[] timing, String[] food_time) {
+        System.out.println(food_items);
         this.food_time = food_time;
-        this.MenuList = MenuList;
+        this.food_items = food_items;
         this.timing = timing;
         updateData(data);
         System.out.println("Updated!");
@@ -50,7 +56,7 @@ public class CardStackAdapter extends StackAdapter<Integer> {
         if(holder instanceof CardViewHolder)
         {
             CardViewHolder cardHolder = (CardViewHolder)holder;
-            cardHolder.onBind(data,position, MenuList, timing[position], food_time[position]);
+            cardHolder.onBind(data,position, food_items, timing[position], food_time[position]);
         }
         System.out.println("bindView");
     }
@@ -90,11 +96,14 @@ public class CardStackAdapter extends StackAdapter<Integer> {
             System.out.println("CardViewHolder constructor");
         }
 
-        public void onBind(Integer backgroundColorId,int position,List<List<MenuData>> dataList, String timing,String food_time)
+        public void onBind(Integer backgroundColorId,int position,Collection<Object> dataList, String timing,String food_time)
         {
+            Object[] trial = dataList.toArray();
+            Object items = trial[position];
+            List<?> item_list = (List)items;
            // cardTitle.getBackground().setColorFilter(ContextCompat.getColor(getContext(),backgroundColorId), PorterDuff.Mode.SRC_IN);
             cardTitle.setBackgroundResource(backgroundColorId);
-            MenuListAdapter adapter = new MenuListAdapter(dataList.get(position), timing);
+            MenuListAdapter adapter = new MenuListAdapter(item_list, timing);
             foodList.setLayoutManager(new LinearLayoutManager(getContext()));
             foodList.setAdapter(adapter);
             titleText.setText(food_time);
