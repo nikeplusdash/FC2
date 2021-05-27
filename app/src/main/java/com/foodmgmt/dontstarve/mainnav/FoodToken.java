@@ -17,13 +17,14 @@ import androidx.fragment.app.Fragment;
 
 import com.foodmgmt.dontstarve.MainMenu;
 import com.foodmgmt.dontstarve.R;
+import com.foodmgmt.dontstarve.Verify;
 
 public class FoodToken extends Fragment {
     private View view;
     private String name, regno, email;
     private MainMenu mm;
     private boolean isVerified;
-    private Button vB;
+    private Button vB,vB2;
     private Handler handlerAnim;
     private ImageView iv0, iv1, iv2;
     private static boolean click = false;
@@ -43,6 +44,7 @@ public class FoodToken extends Fragment {
             iv1 = view.findViewById(R.id.vimageView2);
             iv2 = view.findViewById(R.id.vimageView3);
             vB = view.findViewById(R.id.vbutton);
+            vB2 = view.findViewById(R.id.vbuttonDuplicate);
 
             mm = (MainMenu) getActivity();
             name = mm.name;
@@ -52,45 +54,47 @@ public class FoodToken extends Fragment {
         }
 
         if (isVerified) {
-            vB.setOnClickListener(v -> {
-                if (!mm.nfcPresent || mm.nfcAdapter == null) return;
-                if (!mm.nfcAdapter.isEnabled()) {
-                    Toast.makeText(mm, "Please enable NFC.", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
-                    return;
-                }
-                if (!click) {
-                    vB.setText("Stop");
-                    mm.startNFC();
-                    iv0.setVisibility(View.VISIBLE);
-                    iv1.setVisibility(View.VISIBLE);
-                    iv2.setVisibility(View.VISIBLE);
-                    anime.run();
-                } else {
-                    vB.setText("Start");
-                    mm.stopNFC();
-                    handlerAnim.removeCallbacks(anime);
-                }
-                click = !click;
-            });
+            if (!mm.nfcPresent || mm.nfcAdapter == null) {
+                vB.setVisibility(View.GONE);
+                vB2.setVisibility(View.GONE);
+                TextView tv = view.findViewById(R.id.nvText);
+                tv.setVisibility(View.VISIBLE);
+                tv.setText("NFC not present in the device");
+            }
+            else {
+                vB.setOnClickListener(v -> {
+                    if (!mm.nfcAdapter.isEnabled()) {
+                        Toast.makeText(mm, "Please enable NFC.", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+                        return;
+                    }
+                    else {
+                        vB.setVisibility(View.GONE);
+                        mm.startNFC();
+
+                        iv0.setVisibility(View.VISIBLE);
+                        iv1.setVisibility(View.VISIBLE);
+                        iv2.setVisibility(View.VISIBLE);
+
+                        iv0.setAlpha(1f);
+                        iv1.setAlpha(1f);
+                        iv2.setAlpha(1f);
+
+                        anime.run();
+                    }
+                    click = !click;
+                });
+            }
         } else {
             vB.setVisibility(View.GONE);
-            TextView tv = view.findViewById(R.id.nvText);
-            tv.setVisibility(View.VISIBLE);
-        }
-        if (click) {
-            vB.setText("Stop");
-            mm.startNFC();
-
-            iv0.setVisibility(View.VISIBLE);
-            iv1.setVisibility(View.VISIBLE);
-            iv2.setVisibility(View.VISIBLE);
-
-            iv0.setAlpha(1f);
-            iv1.setAlpha(1f);
-            iv2.setAlpha(1f);
-
-            anime.run();
+            vB2.setVisibility(View.VISIBLE);
+            vB2.setOnClickListener(v -> {
+                Intent myIntent = new Intent(getActivity(), Verify.class);
+                myIntent.putExtra("name", mm.name);
+                myIntent.putExtra("email", mm.email);
+                myIntent.putExtra("regno", mm.regno);
+                startActivity(myIntent);
+            });
         }
         return view;
     }

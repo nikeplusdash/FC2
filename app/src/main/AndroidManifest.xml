@@ -24,11 +24,12 @@
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
+
         <receiver
             android:name=".mainnav.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true">
-        </receiver>
+            android:exported="true" />
+
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
@@ -51,7 +52,8 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".Verify"
+            android:screenOrientation="portrait" />
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />

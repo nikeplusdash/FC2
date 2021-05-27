@@ -28,7 +28,7 @@ public class Statistics extends Fragment {
         super.onCreate(savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference crowd = database.getReference("crowd");
-        crowd.addValueEventListener(new ValueEventListener() {
+        crowd.child("count").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again

@@ -16,27 +16,27 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Integer.parseInt;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "Geofence";
-    boolean flag = false;
+    private String id;
+    private static boolean flag;
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-
+        id = intent.getExtras().getString("id");
         if (geofencingEvent.hasError()) {
             Log.d(TAG, "onReceive: Error receiving geofence event...");
             return;
         }
 
         List<Geofence> geofenceList = geofencingEvent.getTriggeringGeofences();
-        for (Geofence geofence: geofenceList) {
+        for (Geofence geofence : geofenceList) {
             Log.d(TAG, "onReceive: " + geofence.getRequestId());
         }
 
@@ -48,17 +48,22 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT).show();
-                if(!flag){
+                if (!flag) {
                     crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DataSnapshot> task) {
                             if (!task.isSuccessful()) {
                                 Log.e("firebase", "Error getting data", task.getException());
-                            }
-                            else {
+                            } else {
                                 Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                int n = parseInt(String.valueOf(task.getResult().getValue()));
-                                crowd.setValue(n+1);
+                                DataSnapshot data = task.getResult();
+                                Long count = (Long) data.child("count").getValue();
+                                ArrayList<String> people = (ArrayList<String>) data.child("people").getValue();
+                                if (!people.contains(id)) {
+                                    crowd.child("count").setValue(count + 1);
+                                    people.add(id);
+                                    crowd.child("people").setValue(people);
+                                }
                                 flag = true;
                             }
                         }
@@ -68,41 +73,47 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_SHORT).show();
-                if(!flag){
-                    crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            }
-                            else {
-                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                int n = parseInt(String.valueOf(task.getResult().getValue()));
-                                crowd.setValue(n+1);
-                                flag = true;
+                crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        } else {
+                            Log.d("geofence enter", String.valueOf(task.getResult().getValue()));
+                            DataSnapshot data = task.getResult();
+                            Long count = (Long) data.child("count").getValue();
+                            ArrayList<String> people = (ArrayList<String>) data.child("people").getValue();
+                            if (!people.contains(id)) {
+                                crowd.child("count").setValue(count + 1);
+                                people.add(id);
+                                crowd.child("people").setValue(people);
                             }
                         }
-                    });
-                }
+                    }
+                });
                 break;
 
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT).show();
-                if(flag) {
-                    crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            } else {
-                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                int n = parseInt(String.valueOf(task.getResult().getValue()));
-                                crowd.setValue(n - 1);
-                                flag = false;
+                crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        } else {
+                            Log.d("geofence exit", String.valueOf(task.getResult().getValue()));
+                            DataSnapshot data = task.getResult();
+                            Long count = (Long) data.child("count").getValue();
+                            ArrayList<String> people = (ArrayList<String>) data.child("people").getValue();
+                            if (people.contains(id)) {
+                                crowd.child("count").setValue(count - 1);
+                                people.remove(id);
+                                crowd.child("people").setValue(people);
                             }
+                            flag = false;
                         }
-                    });
-                }
+                    }
+                });
                 break;
         }
 

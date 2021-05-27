@@ -1,4 +1,11 @@
-package com.foodmgmt.dontstarve.onboarding;
+package com.foodmgmt.dontstarve;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.navigation.Navigation;
 
 import android.Manifest;
 import android.app.Activity;
@@ -18,30 +25,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.SparseIntArray;
-import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-
 import com.foodmgmt.dontstarve.MainMenu;
 import com.foodmgmt.dontstarve.R;
+import com.foodmgmt.dontstarve.onboarding.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -53,11 +49,7 @@ import com.google.mlkit.vision.text.TextRecognizer;
 
 import java.io.ByteArrayOutputStream;
 
-import static android.content.Context.CAMERA_SERVICE;
-
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class Verify extends Fragment {
-
+public class Verify extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int requestCode = 101;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -69,12 +61,11 @@ public class Verify extends Fragment {
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
 
-    Context context = getActivity();
     private String name, email, regno;
     private Thread thread;
     private int cameraId, rotation;
-    private static int failedAttempts = 0;
-    private boolean isVerified = false, isOnboardingDone = false, wasVerified = false;
+    private static int failedAttempts;
+    private boolean isVerified = false;
     private ImageButton camera_button, button;
     private ProgressDialog mProgress;
     private StorageReference mStorage, filepath;
@@ -82,64 +73,45 @@ public class Verify extends Fragment {
     private View v;
     private byte[] imgData;
     private Bundle rebundle;
+    private Context ctx;
 
+    static {
+        failedAttempts = 0;
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_verify, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_DontStarve);
+        setContentView(R.layout.activity_verify);
 
         mStorage = FirebaseStorage.getInstance().getReference();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mProgress = new ProgressDialog(getContext());
+        mProgress = new ProgressDialog(this);
         rebundle = new Bundle();
+        ctx = this;
 
-        camera_button = v.findViewById(R.id.camera_button);
-        button = v.findViewById(R.id.button);
+        camera_button = findViewById(R.id.camera_button);
+        button = findViewById(R.id.button);
 
-        name = getArguments().getString("name");
-        email = getArguments().getString("email");
-        regno = getArguments().getString("regno");
+        Bundle b = getIntent().getExtras();
+        name = b.getString("name");
+        email = b.getString("email");
+        regno = b.getString("regno");
         isVerified = false;
-        isOnboardingDone = false;
-        wasVerified = false;
 
         rebundle.putString("name", name);
         rebundle.putString("regno", regno);
         rebundle.putString("email", email);
-        mProgress.setMessage("Just a Moment");
-        mProgress.show();
-        mDatabase.child("users").child(regno).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Users u = snapshot.getValue(Users.class);
-                mProgress.dismiss();
-                if (u == null) return;
-                if (u.getVerified()) {
-                    if (!name.equals(u.getName())) return;
-                    if (!email.equals(u.getEmail())) return;
-                    wasVerified = true;
-                    isVerified = true;
-                    isOnboardingDone = true;
-                    Toast.makeText(getActivity(), "You have already been verified", Toast.LENGTH_SHORT).show();
-                    thread.start();
-                    endOnboarding();
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, requestCode);
         }
 
         camera_button.setOnClickListener(view -> dispatchTakePictureIntent(v));
 
         button.setOnClickListener(view -> {
-            isOnboardingDone = true;
-            Toast.makeText(getActivity(), "You can use Verification tab to verify at a later date", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You can use Verification tab to verify at a later date", Toast.LENGTH_LONG).show();
             thread.start();
             endOnboarding();
         });
@@ -155,13 +127,10 @@ public class Verify extends Fragment {
                 }
             }
         };
-
-        return v;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             mProgress.setMessage("Verifying Image...");
             mProgress.show();
@@ -178,27 +147,19 @@ public class Verify extends Fragment {
     }
 
     private void endOnboarding() {
-        SharedPreferences sp = getActivity().getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("name", name);
         editor.putString("email", email);
         editor.putString("regno", regno);
         editor.putBoolean("verification", isVerified);
-        editor.putBoolean("onboarding", isOnboardingDone);
         editor.commit();
 
         Users u = new Users(email, regno, name, isVerified);
         mDatabase.child("users").child(regno).setValue(u);
 
-        Intent myIntent = new Intent(getContext(), MainMenu.class);
-        myIntent.putExtra("name", name);
-        myIntent.putExtra("email", email);
-        myIntent.putExtra("regno", regno);
-        myIntent.putExtra("verification", isVerified);
-        getContext().startActivity(myIntent);
-        getActivity().finish();
+        finish();
     }
-
     private void performVerification(Bitmap imageCapture) {
         InputImage image = InputImage.fromBitmap(imageCapture, rotation);
         TextRecognizer recognizer = TextRecognition.getClient();
@@ -210,11 +171,11 @@ public class Verify extends Fragment {
                             for (Text.Line line : block.getLines()) {
                                 for (Text.Element element : line.getElements()) {
                                     String elementText = element.getText();
+                                    System.out.println(elementText+" --- " + regno);
                                     if (elementText.contains(regno)) {
                                         isVerified = true;
-                                        isOnboardingDone = true;
                                         mProgress.dismiss();
-                                        Toast.makeText(getActivity(), "You have been verified", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "You have been verified", Toast.LENGTH_SHORT).show();
                                         thread.start();
                                         endOnboarding();
                                     }
@@ -223,7 +184,7 @@ public class Verify extends Fragment {
                         }
                         if (!isVerified) {
                             if (failedAttempts < 3)
-                                new AlertDialog.Builder(getContext())
+                                new AlertDialog.Builder(ctx)
                                         .setTitle("Verification Failed")
                                         .setMessage("There was an issue. Try again Later")
                                         .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
@@ -269,14 +230,14 @@ public class Verify extends Fragment {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                new AlertDialog.Builder(getContext())
+                new AlertDialog.Builder(ctx)
                         .setTitle("Uploading Failed")
                         .setMessage("There was an issue. Try again Later")
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mProgress.dismiss();
-                                Navigation.findNavController(v).navigate(R.id.action_verify_self, rebundle);
+                                finish();
                             }
                         }).show();
             }
@@ -284,9 +245,8 @@ public class Verify extends Fragment {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                isOnboardingDone = true;
                 mProgress.dismiss();
-                Toast.makeText(getActivity(), "You will be verified soon", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You will be verified soon", Toast.LENGTH_SHORT).show();
                 thread.start();
                 endOnboarding();
             }
@@ -294,7 +254,7 @@ public class Verify extends Fragment {
     }
 
     public void dispatchTakePictureIntent(View v) {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             try {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -304,20 +264,21 @@ public class Verify extends Fragment {
                     Camera.getCameraInfo(i, info);
                     if (info.facing != Camera.CameraInfo.CAMERA_FACING_FRONT) {
                         cameraId = i;
-                        rotation = getRotationCompensation(cameraId + "", getActivity(), false);
+                        rotation = getRotationCompensation(cameraId + "", this, false);
                         break;
                     }
                 }
             } catch (ActivityNotFoundException | CameraAccessException e) {
-                Toast.makeText(getActivity(), "Camera Launch Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Camera Launch Failed", Toast.LENGTH_SHORT).show();
             }
         } else {
-            new AlertDialog.Builder(getContext())
+            new AlertDialog.Builder(ctx)
                     .setTitle("Allow access to Camera")
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.M)
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                                 requestPermissions(new String[]{Manifest.permission.CAMERA}, requestCode);
                             }
                         }
@@ -347,4 +308,5 @@ public class Verify extends Fragment {
         }
         return rotationCompensation;
     }
+
 }

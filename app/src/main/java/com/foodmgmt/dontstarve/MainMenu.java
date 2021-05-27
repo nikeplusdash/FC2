@@ -35,16 +35,17 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.nio.charset.Charset;
 import java.util.Locale;
 
@@ -62,9 +63,9 @@ public class MainMenu extends AppCompatActivity {
     private final String GEOFENCE_ID = "FC_2";
     private final int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
     private final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
-    private final float GEOFENCE_RADIUS = 200;
+    private final float GEOFENCE_RADIUS = 50;
     //TODO: Change coorodinates to testing location
-    LatLng FC2 = new LatLng(13.357206,74.783005);
+    LatLng FC2 = new LatLng(19.2115, 72.8739);
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +80,7 @@ public class MainMenu extends AppCompatActivity {
         isVerified = b.getBoolean("verification", false);
 
         geofencingClient = LocationServices.getGeofencingClient(this);
-        geofenceHelper = new GeofenceHelper(this);
+        geofenceHelper = new GeofenceHelper(this,regno);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         // Check if user was verified by Admin later
@@ -88,20 +89,13 @@ public class MainMenu extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 Users u = snapshot.getValue(Users.class);
-                if (!isVerified)
+                if (!isVerified && u.getVerified())
                     Toast.makeText(MainMenu.this, "You have been verified", Toast.LENGTH_SHORT).show();
                 SharedPreferences sp = getSharedPreferences("dontstarve", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putBoolean("verification", u.getVerified());
                 editor.commit();
                 isVerified = u.getVerified();
-
-                FragmentManager fm = getSupportFragmentManager();
-                Fragment f = fm.findFragmentById(R.id.container2);
-                fm.beginTransaction()
-                        .detach(f)
-                        .attach(f)
-                        .commit();
             }
 
             @Override

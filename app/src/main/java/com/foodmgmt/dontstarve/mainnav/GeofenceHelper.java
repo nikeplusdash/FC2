@@ -14,16 +14,18 @@ import com.google.android.gms.maps.model.LatLng;
 public class GeofenceHelper extends ContextWrapper {
 
     private static final String TAG = "GeofenceHelper";
+    private String id;
     PendingIntent pendingIntent;
 
-    public GeofenceHelper(Context base) {
+    public GeofenceHelper(Context base,String id) {
         super(base);
+        this.id = id;
     }
 
     public GeofencingRequest getGeofencingRequest(Geofence geofence) {
         return new GeofencingRequest.Builder()
                 .addGeofence(geofence)
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER |GeofencingRequest.INITIAL_TRIGGER_DWELL|GeofencingRequest.INITIAL_TRIGGER_EXIT)
                 .build();
     }
 
@@ -42,8 +44,8 @@ public class GeofenceHelper extends ContextWrapper {
             return pendingIntent;
         }
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+        intent.putExtra("id",id);
         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         return pendingIntent;
     }
 

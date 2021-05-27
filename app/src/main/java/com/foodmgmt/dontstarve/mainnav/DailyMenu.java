@@ -63,6 +63,7 @@ public class DailyMenu extends Fragment implements CardStackView.ItemExpendListe
         adapter = new CardStackAdapter(getActivity());
         mCardStack.setAdapter(adapter);
         mCardStack.setItemExpendListener(this);
+        mCardStack.setDrawingCacheEnabled(true);
         mDatabase = FirebaseDatabase.getInstance().getReference("menu");
         push_data();
 
