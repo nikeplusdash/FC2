@@ -11,6 +11,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.NfcA;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import com.fxn.OnBubbleClickListener;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,8 +46,6 @@ import com.google.firebase.database.ValueEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class MainMenu extends AppCompatActivity {
@@ -57,16 +57,14 @@ public class MainMenu extends AppCompatActivity {
     public IntentFilter[] intentFiltersArray;
     public String[][] techListsArray;
     public PendingIntent pendingIntent;
-    public int No_of_people = 0;
-    LatLng FC2 = new LatLng(13.345614740234748, 74.7964322234682);
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
-    private float GEOFENCE_RADIUS = 200;
-    private String GEOFENCE_ID = "FC_2";
-    private int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
-    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
-    private List<Geofence> geofenceList = new ArrayList<>();
-    private PendingIntent geofencePendingIntent;
+    private final String GEOFENCE_ID = "FC_2";
+    private final int FINE_LOCATION_ACCESS_REQUEST_CODE = 10001;
+    private final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+    private final float GEOFENCE_RADIUS = 200;
+    //TODO: Change coorodinates to testing location
+    LatLng FC2 = new LatLng(13.357206,74.783005);
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +78,8 @@ public class MainMenu extends AppCompatActivity {
         regno = b.getString("regno");
         isVerified = b.getBoolean("verification", false);
 
+        geofencingClient = LocationServices.getGeofencingClient(this);
+        geofenceHelper = new GeofenceHelper(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         // Check if user was verified by Admin later
@@ -107,10 +107,6 @@ public class MainMenu extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull @NotNull DatabaseError error) {}
         });
-
-        // Getting reference of crowd from Database
-        DatabaseReference crowd = database.getReference("crowd");
-        crowd.setValue(101);
 
         // Bottom Navigation Bar to respond accordingly
         BubbleTabBar bar = findViewById(R.id.bubbleTabBar);
@@ -175,30 +171,13 @@ public class MainMenu extends AppCompatActivity {
         // Allowed NFC Device Types
         techListsArray = new String[][]{new String[]{NfcA.class.getName()}};
 
-        // Permission Access for Background/Fine Location
-        enableUserLocation();
-
-        // Logging data change
-        crowd.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Integer value = dataSnapshot.getValue(Integer.class);
-                No_of_people = value;
-                Log.d(TAG, "Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
+        enableUserFineLocation();
+        enableUserBackgroundLocation();
+        addGeofence(FC2, GEOFENCE_RADIUS);
 
     }
 
-    private void enableUserLocation() {
+    public void enableUserFineLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //mMap.setMyLocationEnabled(true);
         } else {
@@ -209,6 +188,25 @@ public class MainMenu extends AppCompatActivity {
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_ACCESS_REQUEST_CODE);
             }
+        }
+    }
+
+    public void enableUserBackgroundLocation(){
+        if (Build.VERSION.SDK_INT >= 29) {
+            //We need background permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                    //We show a dialog and ask for permission
+                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                }
+            }
+
+        } else {
+
         }
     }
 
@@ -227,7 +225,6 @@ public class MainMenu extends AppCompatActivity {
         if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //We have the permission
-                addGeofence(FC2, GEOFENCE_RADIUS);
                 Toast.makeText(this, "You can add geofences...", Toast.LENGTH_SHORT).show();
             } else {
                 //We do not have the permission..
@@ -236,21 +233,14 @@ public class MainMenu extends AppCompatActivity {
         }
     }
 
-    private void addGeofence(LatLng latLng, float radius) {
+    public void addGeofence(LatLng latLng, float radius) {
 
         Geofence geofence = geofenceHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
         GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
         PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+          return;
         }
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

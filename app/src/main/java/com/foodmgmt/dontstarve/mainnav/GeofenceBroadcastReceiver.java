@@ -3,7 +3,6 @@ package com.foodmgmt.dontstarve.mainnav;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,6 +18,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
+import static java.lang.Integer.parseInt;
+
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "Geofence";
@@ -26,11 +27,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
-        // an Intent broadcast.
-//        Toast.makeText(context, "Geofence triggered...", Toast.LENGTH_SHORT).show();
-
-        //NotificationHelper notificationHelper = new NotificationHelper(context);
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
@@ -43,31 +39,31 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         for (Geofence geofence: geofenceList) {
             Log.d(TAG, "onReceive: " + geofence.getRequestId());
         }
-//        Location location = geofencingEvent.getTriggeringLocation();
+
         int transitionType = geofencingEvent.getGeofenceTransition();
-        Task<DataSnapshot> dataSnapshot;
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference crowd = database.getReference("crowd");
-        //crowd.setValue(100);
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT).show();
-                crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
+                if(!flag){
+                    crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            }
+                            else {
+                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                int n = parseInt(String.valueOf(task.getResult().getValue()));
+                                crowd.setValue(n+1);
+                                flag = true;
+                            }
                         }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            Integer n = (Integer) task.getResult().getValue();
-                            crowd.setValue(n+1);
-                            flag = true;
-                        }
-                    }
-                });
+                    });
+                }
                 break;
 
             case Geofence.GEOFENCE_TRANSITION_DWELL:
@@ -81,7 +77,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                             }
                             else {
                                 Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                Integer n = (Integer) task.getResult().getValue();
+                                int n = parseInt(String.valueOf(task.getResult().getValue()));
                                 crowd.setValue(n+1);
                                 flag = true;
                             }
@@ -92,20 +88,21 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT).show();
-                crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
+                if(flag) {
+                    crowd.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            } else {
+                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                int n = parseInt(String.valueOf(task.getResult().getValue()));
+                                crowd.setValue(n - 1);
+                                flag = false;
+                            }
                         }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            Integer n = (Integer) task.getResult().getValue();
-                            crowd.setValue(n-1);
-                            flag = false;
-                        }
-                    }
-                });
+                    });
+                }
                 break;
         }
 
