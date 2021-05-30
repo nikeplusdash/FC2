@@ -115,7 +115,7 @@ class App extends React.Component {
 									<td>{i.name}</td>
 									<td>{i.email}</td>
 									<td>{i.regno}</td>
-									<td><a href={i.img_url}>{i.img_url?"Click here":"One moment"}</a></td>
+									<td><a href={i.img_url} target="__blank">{i.img_url?"Click here":"One moment"}</a></td>
 								</tr>
 							)
 						})}
